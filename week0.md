@@ -53,8 +53,6 @@ Date: 2025/10/14
 
 Duration: 20min
 
----
-
 ### Problem 2 — [leetcode-3349](https://leetcode.cn/problems/adjacent-increasing-subarrays-detection-i)
 - Status: Solved
 - Difficulty: Easy
@@ -106,8 +104,6 @@ public:
 };
 ```
 
----
-
 #### Mistakes
 开始未考虑 相邻元素之差 $>=2*k$ 的情况
 
@@ -115,3 +111,54 @@ public:
 nums = [-15,19]
 k = 1
 ```
+
+
+# Thursday
+
+Date: 2025/10/15
+
+Duration: 15min
+
+### Problem 3 — [leetcode-3350](https://leetcode.cn/problems/adjacent-increasing-subarrays-detection-ii)
+
+#### Approach
+- 初始化 **$ans=1$**，`prev=0`（不重要），**$cur=1$**
+- 外层从 $1$ 开始 `for` 循环
+- 当前元素 $>$ 前一元素：`cur` 自增；`ans` 更新为 `max(ans, min(prev, cur))`；`ans` 更新为 `max(ans, cur/2)`
+- 否则，`prev=cur`，并重置 `cur=1`
+
+#### Key idea
+`ans` 代表的 $2$ 个 *连续递增子序列* 有 $2$ 种情况
+
+1. 均在 cur 所代表的递增数组中
+2. 由 `prev` 和 `cur` 共同构成，因此需要取 $min$ 值
+
+#### Complexity
+- Time: O(n)
+- Space: O(n)
+
+#### Code
+```cpp
+class Solution {
+public:
+    int maxIncreasingSubarrays(vector<int>& nums) {
+        int ans = 1, prev = 0, cur = 1;
+
+        for(int i=1; i<nums.size(); ++i) {
+            if(nums[i] > nums[i-1]) {
+                ++cur;
+                ans = max(ans, cur/2);
+                ans = max(ans, min(prev, cur));
+            } else {
+                prev = cur;
+                cur = 1;
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+#### Mistakes
+初始化错误：应初始化以及重置 `cur=0`，应初始化 `ans=1`

@@ -112,8 +112,10 @@ nums = [-15,19]
 k = 1
 ```
 
+> [上述问题](#problem-2--leetcode-3349) 可以先根据 [下面的问题](#problem-3--leetcode-3350) 求出 符合条件的最大值 `m`，与 `k` 比较大小即可
 
-# Thursday
+
+# Wednessday
 
 Date: 2025/10/15
 
@@ -162,3 +164,60 @@ public:
 
 #### Mistakes
 初始化错误：应初始化以及重置 `cur=0`，应初始化 `ans=1`
+
+# Thursday
+
+Date: 2025/10/16
+
+Duration: 15min
+
+### Problem 3 — [leetcode-2598](https://leetcode.cn/problems/smallest-missing-non-negative-integer-after-operations)
+
+#### Approach
+- 使用 `hash` 表或 `vector` 进行同余分组
+- 找出数量最少的余数个数 `cnt`，并记录对应的余数为 `remainder`
+- $cnt*value+remainder$ 即为答案
+
+#### Key idea
+同余分组
+
+#### Complexity
+- Time: O(n)
+- Space: O(n)
+
+#### Code
+```cpp
+class Solution {
+public:
+    int findSmallestInteger(vector<int>& nums, int value) {
+        vector<int> remainder(value, 0);
+        
+        for(int n: nums) {
+            // while(n<0) n += value;
+            // ++remainder[n%value];
+            if(n>=0) ++remainder[n % value];
+            else {
+                int add = -n / value * value;
+                if(add == n) ++remainder[0];
+                else ++remainder[(n+add+value) % value];
+            }
+        }
+
+        int min=INT_MAX, ind=0;
+        for(int i=0; i<remainder.size(); ++i) {
+            if(remainder[i] < min) {
+                min = remainder[i];
+                ind = i;
+            }
+        }
+
+        return min * value + ind;
+
+    }
+};
+```
+
+#### Mistakes
+第一次尝试，遇到负数一直累加到整数。大大增加时间复杂度，导致超时
+
+负数 `mod` 公式：$(num mod m) mod m$

@@ -221,3 +221,139 @@ public:
 第一次尝试，遇到负数一直累加到整数。大大增加时间复杂度，导致超时
 
 负数 `mod` 公式：$(num mod m) mod m$
+
+
+# Friday
+
+Date: 2025/10/17
+
+Duration: hours~
+
+### Problem5 — [leetcode-3003](https://leetcode.cn/problems/maximize-the-number-of-partitions-after-operations)
+
+
+# Saturday
+
+Date: 2025/10/18
+
+Duration: 20 min
+
+### Problem6 — [leetcode-3397](https://leetcode.cn/problems/maximum-number-of-distinct-elements-after-operations)
+
+#### Approach
+- 维护 `start`，代表遍历到第 `i` 位元素时，修改后 `nums` *最大值* 的 *最小值*
+> e.g.
+> 若 `nums` 可能为 `[0, 1, 2, 4]` 和 `[-1, 0, 1, 3]`
+> 则 `start` = 3
+
+- *预处理*：利用 `map` 获取每个元素的个数
+- 遍历 `map`，维护 `start`, 计算 `end`, 更新 `ans` 和 `start` 
+    - start = max(start, nums[i]-k)
+    - end = min(start+map[nums[i]], nums[i]+k+1)
+    - ans += (end-start)
+    - start = end
+- `return ans`
+
+#### Code
+```cpp
+class Solution {
+public:
+    int maxDistinctElements(vector<int>& nums, int k) {
+        map<int, int> cnt;
+
+        for(int num : nums) {
+            ++cnt[num];
+        }
+
+        int start = INT_MIN, ans = 0; 
+        for(auto [v, c] : cnt) {
+            start = max(start, v-k);
+            int end = min(start+c, v+k+1);
+            ans += (end-start);
+            start = end;
+        }
+
+        return ans;
+    }
+};
+```
+
+> 可以直接遍历原 `nums` 数组，无需遍历得到 `map`
+> **处理逻辑** 很重要！
+
+
+#### Key idea
+- 贪心
+- 双指针
+
+# Sunday
+
+Date: 2025/10/19
+
+Duration: 20min
+
+### Problem7 — [leetcode-1625](https://leetcode.cn/problems/lexicographically-smallest-string-after-applying-operations)
+
+#### Approach
+- 将字符储存在 `queue` 中
+- 每次取出 `front`，并执行 `pop` 操作
+- *if not visited*: `visited[str]=true`，并生成 $2$ 个变换后的字符串
+- *if not visited*: `push`
+
+#### Key idea
+- Broute Force
+- BFS
+
+#### Complexity
+- Time: $O(n^2)$
+- Space: $O(n)$
+
+#### Code
+```cpp
+class Solution {
+public:
+    string findLexSmallestString(string s, int a, int b) {
+        queue<string> que;
+        unordered_set<string> visited;
+        
+        que.push(s);
+
+        string res = s;
+        while(!que.empty()) {
+            string cur = que.front();
+            que.pop();
+            if(cur<res) {
+                res = cur;
+            }
+
+            // cout << cur << endl;
+
+            if(visited.count(cur) == 1) {
+                continue;
+            }
+            visited.insert(cur);
+
+            string add = cur;
+            for(int i=1; i<cur.size(); i=i+2) {
+                add[i] = char( (int(add[i]-'0')+a) % 10 + '0');
+            }
+            if(visited.count(add) == 0) {
+                que.push(add);
+            }
+
+            string rotate = cur.substr(b, cur.size()-b);
+            string temp = cur.substr(0, b);
+            rotate += temp;
+            if(visited.count(rotate) == 0) {
+                que.push(rotate);
+            }
+        }
+
+        return res;
+    }
+};
+```
+
+#### Mistakes
+- 注意更新 `visited` 的逻辑顺序
+- 必须是 `front` 时才 `visited`，而不是 `push`时就设置为 $1$

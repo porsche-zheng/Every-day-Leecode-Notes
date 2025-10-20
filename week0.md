@@ -230,6 +230,130 @@ Date: 2025/10/17
 Duration: hours~
 
 ### Problem5 — [leetcode-3003](https://leetcode.cn/problems/maximize-the-number-of-partitions-after-operations)
+- Status: 看答案解决
+- Difficulty: difficult
+- Language: C++
+
+#### Key idea
+- $DP$ 预处理
+- *位运算* 压缩
+- **左右分割** 的思路
+
+#### Approach
+- 存储每个位置 **前（不包括 `i`）**，*后* 的分割信息
+    - `left[i][0]`: 表示 `i` *前* 的 **已满分割数**
+    - `left[i][1]`: 表示 `i` *前* 的 **未满分割的字符信息**，且用 *二进制掩码* 表示
+    - `left[i][2]`: 表示 `i` *前* 的 **未满分割的不同字符个数**
+    - `right[i]` 各项同理，表示 *后* 的信息
+    > 若 left[i] = {2, 101, 2}，则：
+    > i 前已经确定有 2 个分割
+    > i 前最近的没有形成分割的是 'a' 和 'c'
+    > 101 有 2 个不同的字符，即 `left[i][2]` 恒等于 `left[i][1]` 中 $1$ 的  个数
+
+- 使用 $DP$ 思想和 *位运算* 预处理：
+    - 若 `s[i-1]` 在 `left[i-1][1]` 中，则 `left[i]=left[i-1]`
+    > 判断在与不在：利用 left[i-1][1] 与 1<<(s[i-1]-'0') 进行 & 运算。若为 0 则不在，否则在 
+    - 若不在，则先更新 `left[i][1]` 和 left[i][2]，再判断 left[i][2] 是否严格 $>k$
+    > 更新：left[i][1] 与 1<<(s[i-1]-'0') 进行 | 运算，left[i][2]+1
+        - 若是：则重置 `left[i][1]` 是 1<<(s[i-1]-'0')，`left[i][2]` 是 $1$
+
+- 根据信息，讨论改变每一个位置字符是下列 $3$ 种情况的哪一种（leetcode题解节选）：
+> 此步骤具体详见 Code 部分
+    - 即使修改了位置为 `i` 的字符，左分割、右分割内以及第 `i` 位的不同字符数量仍然不超过 `k`：则左分割、右分割以及第 `i` 位可合并为一个分割。因此，对答案贡献为 $1$，即 `left[i][0]+right[i][0]+1` 是可能答案。
+    - 左分割的不同字符数量为 `k`，右分割中不同字符数量也为 `k`，并且左分割与右分割中不同字符的数量不超过 `25`：则可以把第 `i` 位修改为左分割、右分割中不包含的字符后，左分割、右分割以及第 `i` 位能够重组为三个分割。因此，对答案贡献为 $3$。
+    - 其他情况对答案贡献为 $2$。
+
+- 不断更新可能答案，最后返回最大值即可
+
+#### Code
+```cpp
+// 掩码：表示包含的字母
+// e.g 1000 表示包含 'd'，不包含 'a', 'b', 'c'
+
+// DP 预处理
+// left[0]: 前缀分割个数
+// left[1]: 左分割包含的字符（掩码）
+// left[2]: 左分割字符个数（掩码 1 的个数）
+
+// 修改第 i 位的判断逻辑：
+// 1. 不超过 k：+1
+// 2. 都是 k，且 组合后不超过 25：+3
+// 3. 其他：+2
+
+class Solution {
+public:
+    int maxPartitionsAfterOperations(string s, int k) {
+        vector<vector<int>> left(s.size(), vector<int>(3, 0)), 
+                            right(s.size(), vector<int>(3, 0));
+        
+        int mask = 0;
+        for(int i=1; i<s.size(); ++i) {
+            int last = 1 << (s[i-1] - 'a');
+            
+            left[i] = left[i-1];
+            if(!(mask & last)) { // 上一个字符不再左分支中
+                ++left[i][2];
+                if(left[i][2]>k) {
+                    mask = last;
+                    ++left[i][0];
+                    left[i][2] = 1;
+                }
+                else {
+                    mask |= last;
+                }
+                left[i][1] = mask;
+            }
+        }
+
+        mask = 0;
+        for(int i=s.size()-1; i>0; --i) {
+            int cur = 1 << (s[i] - 'a');
+            
+            right[i-1] = right[i];
+            if(!(mask & cur)) { // 不存在于前分割的字符集中
+                ++right[i-1][2];
+                if(right[i-1][2]>k) {
+                    mask = cur;
+                    ++right[i-1][0];
+                    right[i-1][2] = 1;
+                }
+                else {
+                    mask |= cur;
+                }
+                right[i-1][1] = mask;
+            }
+        }
+
+        int ans = 0;
+        for(int i=0; i<s.size(); ++i) {
+            int seg = left[i][0] + right[i][0] + 2;
+            int mask = left[i][1] | right[i][1];
+            int cnt=0;
+
+            while(mask) {
+                if(mask & 1) {
+                    ++cnt;
+                }
+                mask >>= 1;
+            }
+
+            if(left[i][2]==k && right[i][2]==k && cnt<26) {// 两边都满，并且有空余字符
+                ++seg;
+            }
+            else if(k==26 || cnt+1<=k) {
+                --seg;
+            }
+
+            ans = max(ans, seg);
+        }
+
+        return ans;
+    }
+};
+```
+
+#### Mistake
+`num << cnt` 不能改变 `num` 的值，必须 `num <<= cnt`
 
 
 # Saturday

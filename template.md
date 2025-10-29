@@ -147,4 +147,27 @@ Problem 1 — ...
 
 ---
 
-Good luck — keep it short and consistent; the goal is discoverable improvements over time.
+# day
+
+Date:
+
+Duration:
+
+### Problem 1 — 
+- Difficulty: 
+- Time spent: 10m
+
+#### Approach
+
+#### Key idea
+
+#### Complexity
+- Time: $O(n)$
+- Space: $O(n)$
+
+#### Code
+```cpp
+
+```
+
+#### Note & Mistake

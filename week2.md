@@ -237,3 +237,64 @@ public:
     }
 ```
 
+# Tuesday
+
+Date: 2025/10/30
+
+Duration: 5min
+
+### Problem 1 — 
+- Difficulty: Difficult(Easy?)
+- Time spent: 5m
+
+#### Approach
+使用**动态规划**的思路：
+- 只需一个*数*，表示当前元素前的子数组所需要的最小操作次数
+- 若 `taget[i]>taget[i-1]`：则必须额外操作，且需要多 `target[i]-target[i-1]` 步操作
+- 若 `target[i]<=target[i-1]`：则操作 `target[i-1]` 时，可以同时操作 `target[i]`，因此不需要额外操作
+
+遍历数组，一次判断大小关系，并更新*表示结果的数*即可
+
+#### Key idea
+- 差分
+- Dynamic Plan(?)
+
+#### Complexity
+- Time: $O(n)$
+- Space: $O(1)$
+
+#### Code
+```cpp
+class Solution {
+public:
+    int minNumberOperations(vector<int>& target) {
+        size_t cnt = target[0];
+        for(int i=1; i<target.size(); ++i) {
+            if(target[i]>target[i-1]) {
+                cnt += target[i]-target[i-1];
+            }
+        }
+        return cnt;
+    }
+};
+```
+
+#### Note & Mistake
+以下是阅读leetcode官方题解的笔记：
+
+思路：求出数组 `target` 中相邻两元素的差值，保留大于 $0$ 的部分，累加即为答案。
+
+证明: 设 `d` 是元素组 `target` 的差分数组
+- d[0]=target[0]
+- d[i]=targrt[i]-target[i-1], i!=0
+
+则每次在 `target[left]~target[right]` *操作(每次-1)*，就是在
+- `--d[left]`
+- `++d[right+1]`, right<n-1
+
+至此，可以将 `target` 区间操作转化为 `d` 的边界 $2$ 个值的操作。易知在 `d` 上的最小操作数等于在 `target` 上操作数，且该数的下界为 $\sum_0^n{max(d[i], 0)}$。可由以下方法构造得到操作的过程，即存在一系列操作，使得操作数等于该下界，则此下界即为最小
+
+- 若 `d[i]<0`，则选择 left<i, right=i，使得 `d[i]` 变为 0
+    > 若 `d[i]<0`，则一定存在 `j<i`，使得 `d[j]>0`。具体证明略
+- 最后会剩下非负数项，对于每一个`d[i]>0`，则选取 left=i, right=n，则可以将 `d` 变为全 0 数组
+

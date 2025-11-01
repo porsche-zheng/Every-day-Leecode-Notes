@@ -298,3 +298,75 @@ public:
     > 若 `d[i]<0`，则一定存在 `j<i`，使得 `d[j]>0`。具体证明略
 - 最后会剩下非负数项，对于每一个`d[i]>0`，则选取 left=i, right=n，则可以将 `d` 变为全 0 数组
 
+# Saturday
+
+Date: 2025/11/1
+
+Duration: 15min
+
+### Problem 1 — 
+- Difficulty: Medium
+- Time spent: 15m
+
+#### Approach
+- 创建 `temp` 虚拟头结点，`prev`, `head` 作为*上一个*结点和*当前*结点
+- `prev` 从 `temp` 开始
+    - 若 `head` 的值在 `nums` 中，更新 `prev->next`, 更新 `head`
+    - 若不在，更新 `prev`, 更新`head`
+- 最终删除虚拟头节点，返回真正头节点即可
+
+#### Key idea
+- 哨兵结点
+- 哈希表
+
+#### Complexity
+- Time: $O(n)$
+- Space: $O(n)$
+
+#### Code
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* modifiedList(vector<int>& nums, ListNode* head) {
+        ListNode* prev = new ListNode();
+        prev->next = head;
+        ListNode* temp = prev;
+        unordered_set<int> existed;
+
+        for(int n : nums) {
+            existed.insert(n);
+        }
+
+        while(head) {
+            if(existed.count(head->val) == 1) { // delete node
+                prev->next = head->next;
+                // delete head; no need to delete node, delete it outside by leetcode
+                head = prev->next;
+            }
+            else { // move prev and head
+                prev = head;
+                head = head->next;
+            }
+        }
+
+        head = temp->next;
+        delete temp;
+        
+        return head;
+    }
+};
+```
+
+#### Note & Mistake
+- 注意在移动过程中，不需要真删(`delete`)。因为 leetcode 会在程序外删除
+- 但最后需要真正 `delete` 自己创建的虚拟头节点

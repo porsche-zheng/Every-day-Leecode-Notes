@@ -370,3 +370,111 @@ public:
 #### Note & Mistake
 - 注意在移动过程中，不需要真删(`delete`)。因为 leetcode 会在程序外删除
 - 但最后需要真正 `delete` 自己创建的虚拟头节点
+
+# Sunday
+
+Date: 2025/11/2
+
+Duration: 40min
+
+### Problem 1 — [leetcode-2257](https://leetcode.cn/problems/count-unguarded-cells-in-the-grid)
+- Difficulty: Medium
+- Time spent: 40m
+
+#### Approach
+- 维护 dp_left, dp_right, dp_up, dp_down, 分别表示存在 *左右上下* 方位的 guard 且可以保卫
+- 通过逻辑判断遍历 grid 并更新 dp 数组
+- 最后统计 *空* 且 *均不能被保卫* 的格子数量
+
+#### Key idea
+- 动态规划
+- 逻辑判断
+
+#### Complexity
+- Time: $O(m*n)$
+- Space: $O(m*n)$
+
+#### Code
+```cpp
+class Solution {
+public:
+    int countUnguarded(int m, int n, vector<vector<int>>& guards, vector<vector<int>>& walls) {
+        vector<vector<int>> grid(m, vector<int>(n, 0));
+
+        for(auto g : guards) {
+            grid[g[0]][g[1]] = 1; // 1 stand for guard
+        }
+        for(auto w : walls) {
+            grid[w[0]][w[1]] = -1; // -1 stand for wall
+        }
+
+        // for(int i=0; i<m; ++i) {
+        //     for(int j=0; j<n; ++j) {
+        //         cout << grid[i][j] << ' ';
+        //     }
+        //     cout << endl;
+        // }
+
+        vector<vector<bool>> dp_left(m, vector<bool>(n, false)), 
+                            dp_right(m, vector<bool>(n, false)),
+                            dp_up(m, vector<bool>(n, false)),
+                            dp_down(m, vector<bool>(n, false));
+        // true stand for can be guarded
+
+        for(int i=0; i<m; ++i) {
+            for(int j=0; j<n; ++j) {
+                bool left = false, up = false;
+                if(grid[i][j]==-1) {
+                    continue;
+                }
+                if(grid[i][j]==1) {
+                    dp_left[i][j] = dp_up[i][j] = true;
+                    continue;
+                }
+                if(j!=0) {
+                    dp_left[i][j] = dp_left[i][j-1];
+                }
+                if(i!=0) {
+                    dp_up[i][j] = dp_up[i-1][j];
+                }
+            }
+        }
+
+        for(int i=m-1; i>=0; --i) {
+            for(int j=n-1; j>=0; --j) {
+                bool right = false, down = false;
+                if(grid[i][j]==-1) { // is wall itself
+                    continue;
+                }
+                if(grid[i][j]==1) { // is guard itself
+                    dp_right[i][j] = dp_down[i][j] = true;
+                    continue;
+                }
+                if(j!=n-1) {
+                    dp_right[i][j] = dp_right[i][j+1];
+                }
+                if(i!=m-1) {
+                    dp_down[i][j] = dp_down[i+1][j];
+                }
+            }
+        }
+
+        int res = 0;
+        for(int i=0; i<m; ++i) {
+            for(int j=0; j<n; ++j) {
+                if(grid[i][j]==0 && 
+                    !dp_left[i][j] && !dp_right[i][j] &&
+                    !dp_up[i][j] && !dp_down[i][j]) {
+                    ++ res;
+                }
+            }
+        }
+
+        return res;
+    }
+};
+```
+
+#### Note & Mistake
+- 必须 4 个 dp 数组。最开始想要将 left 与 up 合成 1 个, right 与 down 合成 1 个，结果 **失败**！
+- 另解：[BFS](https://leetcode.cn/problems/count-unguarded-cells-in-the-grid/solutions/1486086)

@@ -153,21 +153,21 @@ Date:
 
 Duration:
 
-### Problem 1 — 
+## Problem 1 — 
 - Difficulty: 
 - Time spent: 10m
 
-#### Approach
+### Approach
 
-#### Key idea
+### Key idea
 
-#### Complexity
+### Complexity
 - Time: $O(n)$
 - Space: $O(n)$
 
-#### Code
+### Code
 ```cpp
 
 ```
 
-#### Note & Mistake
+### Note & Mistake

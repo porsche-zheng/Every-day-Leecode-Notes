@@ -196,3 +196,65 @@ public:
 ### Note & Mistake
 - 先规定排序规则，并按规则排序是关键，贪心需要观察思考得出
 - 注意排序规则中 `end` 相同时，`start` 小的 *反而* 大！
+
+
+# day
+
+Date: 2025/11/21
+
+Duration: 20min
+
+## Problem 1 — [leetcode-1930](https://leetcode.cn/problems/unique-length-3-palindromic-subsequences)
+- Difficulty: Medium
+- Time spent: 20m
+
+### Approach
+- 先得到每个字母的 *最前* 和 *最后* 位置
+- 枚举每一个字母，从 *最前+1* 到 *最后-1* 遍历中间字母，并记录中间字母是否遍历过
+- 若中间字母未出现过，则标记**已遍历过**，并`++res`
+- 最终返回 `res` 即可
+
+### Key idea
+- 枚举 2 侧字母
+
+### Complexity
+- Time: $O(26*n)$
+- Space: $O(n)?$
+
+### Code
+```cpp
+class Solution {
+public:
+    int countPalindromicSubsequence(string s) {
+        vector<int> start(26, -1), end(26, -1);
+        for(int i=0; i<s.size(); ++i) {
+            int j = s[i]-'a';
+            if(start[j] == -1) {
+                start[j] = i;
+            }
+            else {
+                end[j] = i;
+            }
+        }
+
+        int res = 0;
+        for(int i=0; i<26; ++i) {
+            if(start[i]==-1 || end[i]==-1) {
+                continue;
+            }
+            vector<bool> existed(26, false);
+            for(int j = start[i]+1; j<end[i]; ++j) {
+                if(!existed[s[j]-'a']) {
+                    ++ res;
+                    existed[s[j]-'a'] = true;
+                }
+            }
+        }
+
+        return res;
+    }
+};
+```
+
+### Note & Mistake
+- 官方题解法二：也可以枚举中间字符

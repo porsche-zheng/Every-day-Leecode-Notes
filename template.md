@@ -155,7 +155,7 @@ Duration:
 
 ## Problem 1 — 
 - Difficulty: 
-- Time spent: 10m
+- Time spent: 
 
 ### Approach
 

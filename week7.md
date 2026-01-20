@@ -78,3 +78,74 @@ public:
 - 明确终止条件
 
 在此题中，left 总满足，right 总不满足；左开右闭区间
+
+
+# Tuesday
+
+Date: 2026/1/20
+
+Duration: 15min
+
+## Problem 1 — [leetcode-3314](https://leetcode.cn/problems/construct-the-minimum-bitwise-array-i/)
+- Difficulty: Easy
+- Time spent: 15m
+
+### Approach （官解）
+
+注意到：$ans+1$ 的作用是将 $ans$ 中从低位到高位第一个 $0$ 变成 $1$ 并且使该 $0$ 之前的全部低位 $1$ 变为 $0
+
+- 1000 + 1 = 1001, 从右向左，第一位是 $0$, 把他变成 $1$
+
+- 1011 + 1 = 1100, 从右向左，第三位是 $0$, 把他变成 $1$, 并把前两位的 $1$ 都变成 $0$
+
+- 111 + 1 = 1000 同理
+
+则 $ans∣(ans+1)$ 的作用是将 $ans$ 中从低位到高位第一个 $0$ 变成 $1$
+
+- 1000∣(1000+1) = 1001
+
+- 1011∣(1011+1) = 1111
+
+- 111∣(111+1) = 1111
+
+由此可知，对于 $x$ 二进制位从低位到高位的第一个 $0$ 之前的所有 $1$，任取一个 $1$ 变为 $0$ 都可以求得一个 $ans$，使得 $ans∣(ans+1)=x$
+
+- x = 1011, ans = 1001 即可
+
+- x 是 *质数*, 如果 $x \neq 2$, 则他的最低位不可能是 $0$, 否则会被 $2$ 整除
+
+- 若 $x=2$, 则 $ans=-1$, 即不存在符合条件的 $ans$
+
+因此我们只需要找到每个 $x$ 中第一位 $0$ 的位置 $pos$ 并将 $pos−1$ 处的 $1$ 变为 $0$ 即可
+
+### Key idea （个人解答）
+- 暴力枚举
+
+### Complexity
+- Time: $O(N^2)$
+- Space: $O(1)$
+
+### Code
+```cpp
+class Solution {
+public:
+    vector<int> minBitwiseArray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> ans(n, -1);
+        for(int i=0; i<n; ++i) {
+            for(int j=0; j<nums[i]; ++j) {
+                if( (j | (j+1)) == nums[i] ) {
+                    ans[i] = j;
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+};
+```
+
+### Note & Mistake
+题目表述模糊，`OR` 在题目中是 **位运算** 的按位或
+
+在 cpp 中 `|` 的优先级低于 `==`，因此需要 `()`

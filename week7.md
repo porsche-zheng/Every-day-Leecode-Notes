@@ -149,3 +149,77 @@ public:
 题目表述模糊，`OR` 在题目中是 **位运算** 的按位或
 
 在 cpp 中 `|` 的优先级低于 `==`，因此需要 `()`
+
+
+# Monday
+
+Date: 2026/3/2
+
+Duration: 40min
+
+## Problem 1 — [leetcode-1536](https://leetcode.cn/problems/minimum-swaps-to-arrange-a-binary-grid/)
+- Difficulty: Medium
+- Time spent: 40min
+
+### Approach
+1. 先获取每一行后缀 $0$ 的个数, 构建成新的 `vector` zeros
+2. 对于第 `i` 行 (从 0 开始), 寻找后缀 0 的个数 $\geq n-1-i$ 的 **最近**行 `j`
+    > - 第 0 行至少后缀 $n-1$ 个 0
+    > 
+    > - 如果第 1 行和第 2 行均满足条件, 优先选择第 1 行
+    >
+    > - 如果找不到, 即不存在满足条件的 `j`, 则直接 `return -1`
+
+3. `j` (j>=i) 行向前移动到 `i` 位置, 每交换相邻行, 结果+1
+    > 实际上交换 `zeros` 即可, 不需要真的交换 grid
+4. 循环 $2. 3.$ 步骤, 直到 `i=n-1` 行
+
+### Key idea
+- 冒泡排序
+- 贪心
+
+### Complexity
+- Time: $O(n^2)$
+- Space: $O(n)$
+
+### Code
+```cpp
+class Solution {
+public:
+    int minSwaps(vector<vector<int>>& grid) {
+        int n = grid.size();
+        vector<int> zeros(n, 0);
+        for(int i=0; i<n; ++i) {
+            int j=n-1;
+            while(j>=0 && grid[i][j]==0) {
+                --j;
+            }
+            zeros[i] = n-1-j;
+        }
+
+        int res = 0;
+        for(int i=0; i<n-1; ++i) {
+            for(int j=i; j<n; ++j) {
+                if(zeros[j]>=n-1-i) {
+                    for(int k=j; k>i; --k){
+                        swap(zeros[k], zeros[k-1]);
+                        ++res;
+                    }
+                    break;
+                }
+                if(j==n-1) {
+                    return -1;
+                }
+            }
+        }
+
+        return res;
+    }
+};
+```
+
+### Note & Mistake
+- 思路和官方近似, 主要是 **冒泡** 和 **贪心**
+
+- 代码实现略缺少易读性, 尤其是变量名不清晰
+

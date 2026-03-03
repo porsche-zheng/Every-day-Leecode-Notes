@@ -223,3 +223,66 @@ public:
 
 - 代码实现略缺少易读性, 尤其是变量名不清晰
 
+
+# Thuesday
+
+Date: 2026/3/3
+
+Duration: 30min
+
+## Problem 1 — 
+- Difficulty: Medium
+- Time spent: 30min
+
+### Approach
+1. 构造法
+    - 观察发现, $i>2$ 时, $reverse(invert(S_{i-1}))$ 就是把 $S_{i-1}$ 中间位变成 0
+    - 因此, 直接拼接出 $S_n$, 返回 $S_n[k-1]$ 即可
+2. 递归法
+    - $len(S_n)=2^n-1$
+    - 若 k 恰好在 "中间", 返回 1
+    - 若 k 在 "前面", 相当于 $S_{n-1}$ 中找 k
+    - 若 k 在 "后面", 相当于 $S_{n-1}$ 中找 $2^n-k$ 再翻转
+        > 观察得到 $S_n$ 总是 *对称相反* 的
+        > - "0 **1** 1"
+        > - "011 **1** 001"
+3. 巧妙方法：看不懂, 想不出
+
+### Key idea
+- 递归
+- 找规律
+
+### Complexity
+- Time: $O(n)$
+- Space: $O(2^n)?$
+
+### Code
+```cpp
+class Solution {
+public:
+    char findKthBit(int n, int k) {
+        if (n==1) {
+            return '0';
+        }
+        string cur = "011";
+        int idx = 2;
+        while(idx<n) {
+            // cout << idx << ' ' << cur << endl;
+            string temp = cur;
+            temp[temp.length()/2] = '0';
+            cur += "1" + temp;
+            ++idx;
+        }
+        // cout << idx << ' ' << cur << endl;
+        return cur[k-1];
+    }
+};
+```
+
+### Note & Mistake
+- 上述 `Code` 是 **构造法**, 空间复杂度较大
+- 可采用 **递归法** 求解
+- 至于更巧妙的方法, 可遇不可求
+
+- 至于一些 "观察" 的证明, 不求甚解
+
